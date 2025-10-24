@@ -59,9 +59,10 @@ trap 'cleanup SIGTERM' SIGTERM
 # ensure_disk_space:
 # - Checks free space on the filesystem containing $BASE_DIR.
 # - If <450GB free:
-#     * tries to delete any folders in $BASE_DIR/outputfolder older than 15 days
+#     * asks the user if they want to delete any folders older than 15 days in outputfolder
+#     * performs deletion if confirmed
 #     * checks again
-#     * exits with reason if still too low or nothing deletable.
+#     * exits if still too low or nothing deletable.
 ensure_disk_space() {
     local base_path="$BASE_DIR"
     local output_parent="${BASE_DIR}/outputfolder"
@@ -77,23 +78,39 @@ ensure_disk_space() {
         return 0
     fi
 
-    echo "Free space is ${free_gb}GB, below required ${threshold_gb}GB. Attempting cleanup of old runs in ${output_parent} ..."
+    echo "⚠️  Free space is ${free_gb}GB, below required ${threshold_gb}GB."
+    echo "Would you like to remove folders older than 15 days in ${output_parent}? (y/n)"
+    read -r user_choice
+
+    if [[ ${user_choice,,} != "y" ]]; then
+        echo "Exiting: insufficient space and cleanup declined by user."
+        exit 1
+    fi
 
     # Find folders older than 15 days in outputfolder (top-level only)
     local old_dirs
     old_dirs=$(find "$output_parent" -mindepth 1 -maxdepth 1 -type d -mtime +15 2>/dev/null)
 
     if [ -z "$old_dirs" ]; then
-        echo "Not enough disk space (${free_gb}GB free) and no directories older than 15 days found in ${output_parent}."
-        echo "Exiting to avoid running out of space."
+        echo "No directories older than 15 days found in ${output_parent}."
+        echo "Free space (${free_gb}GB) still below ${threshold_gb}GB — exiting."
         exit 1
     fi
 
-    # Delete them
-    echo "Removing the following old directories:"
+    # Show what will be deleted and ask for confirmation
+    echo "The following old directories will be deleted:"
     echo "$old_dirs"
-    find "$output_parent" -mindepth 1 -maxdepth 1 -type d -mtime +15 -print -exec rm -rf {} \;
+    echo
+    read -p "Proceed with deletion? (y/n): " confirm_delete
 
+    if [[ ${confirm_delete,,} != "y" ]]; then
+        echo "Cleanup canceled. Exiting due to insufficient space."
+        exit 1
+    fi
+
+    # Perform cleanup
+    echo "Deleting old directories..."
+    find "$output_parent" -mindepth 1 -maxdepth 1 -type d -mtime +15 -print -exec rm -rf {} \;
     sync
 
     # Re-check free space
@@ -104,10 +121,11 @@ ensure_disk_space() {
         exit 1
     fi
 
-    echo "Disk cleanup successful. ${free_gb}GB free."
+    echo "✅ Disk cleanup successful. ${free_gb}GB free."
     return 0
 }
 ##### ADDED DISK SPACE CHECK END #####
+
 
 run_qc_pipeline() {
     local fastq_1=$1
