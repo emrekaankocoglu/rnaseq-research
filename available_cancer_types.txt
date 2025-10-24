@@ -1,0 +1,34 @@
+project_id	name	tumor
+TCGA-ACC	Adrenocortical Carcinoma	ACC
+TCGA-BLCA	Bladder Urothelial Carcinoma	BLCA
+TCGA-BRCA	Breast Invasive Carcinoma	BRCA
+TCGA-CESC	Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma	CESC
+TCGA-CHOL	Cholangiocarcinoma	CHOL
+TCGA-COAD	Colon Adenocarcinoma	COAD
+TCGA-DLBC	Lymphoid Neoplasm Diffuse Large B-cell Lymphoma	DLBC
+TCGA-ESCA	Esophageal Carcinoma	ESCA
+TCGA-GBM	Glioblastoma Multiforme	GBM
+TCGA-HNSC	Head and Neck Squamous Cell Carcinoma	HNSC
+TCGA-KICH	Kidney Chromophobe	KICH
+TCGA-KIRC	Kidney Renal Clear Cell Carcinoma	KIRC
+TCGA-KIRP	Kidney Renal Papillary Cell Carcinoma	KIRP
+TCGA-LAML	Acute Myeloid Leukemia	LAML
+TCGA-LGG	Brain Lower Grade Glioma	LGG
+TCGA-LIHC	Liver Hepatocellular Carcinoma	LIHC
+TCGA-LUAD	Lung Adenocarcinoma	LUAD
+TCGA-LUSC	Lung Squamous Cell Carcinoma	LUSC
+TCGA-MESO	Mesothelioma	MESO
+TCGA-OV	Ovarian Serous Cystadenocarcinoma	OV
+TCGA-PAAD	Pancreatic Adenocarcinoma	PAAD
+TCGA-PCPG	Pheochromocytoma and Paraganglioma	PCPG
+TCGA-PRAD	Prostate Adenocarcinoma	PRAD
+TCGA-READ	Rectum Adenocarcinoma	READ
+TCGA-SARC	Sarcoma	SARC
+TCGA-SKCM	Skin Cutaneous Melanoma	SKCM
+TCGA-STAD	Stomach Adenocarcinoma	STAD
+TCGA-TGCT	Testicular Germ Cell Tumors	TGCT
+TCGA-THCA	Thyroid Carcinoma	THCA
+TCGA-THYM	Thymoma	THYM
+TCGA-UCEC	Uterine Corpus Endometrial Carcinoma	UCEC
+TCGA-UCS	Uterine Carcinosarcoma	UCS
+TCGA-UVM	Uveal Melanoma	UVM

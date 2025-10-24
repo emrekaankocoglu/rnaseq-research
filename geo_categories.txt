@@ -1,0 +1,6 @@
+type
+Expression profiling by array
+Expression profiling by high throughput sequencing
+Genome binding/occupancy profiling by high throughput sequencing
+Methylation profiling by high throughput sequencing
+Non-coding RNA profiling by high throughput sequencing
