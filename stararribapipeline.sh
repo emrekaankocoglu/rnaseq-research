@@ -187,11 +187,7 @@ run_qc_pipeline() {
     echo "${qc_dir}/cleaned_R1.fastq.gz ${qc_dir}/cleaned_R2.fastq.gz"
 }
 
-##### ADDED DISK SPACE CHECK START #####
-# Before doing ANY work (creating patient dirs, running analysis),
-# make sure we actually have enough free space.
-ensure_disk_space
-##### ADDED DISK SPACE CHECK END #####
+
 
 # Get patient name
 read -p "Enter patient name: " PATIENT_NAME
@@ -382,6 +378,12 @@ done
     echo "$VERSION_INFO" >> "$PATIENT_BASE_DIR/version_history.txt"
     exit 0
 fi
+
+##### ADDED DISK SPACE CHECK START #####
+# Before doing ANY work (creating patient dirs, running analysis),
+# make sure we actually have enough free space.
+ensure_disk_space
+##### ADDED DISK SPACE CHECK END #####
 
 # Create logs directory and input tracking file
 mkdir -p "$OUTPUT_DIR/logs"
