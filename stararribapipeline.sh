@@ -55,6 +55,60 @@ trap 'cleanup SIGHUP' SIGHUP
 trap 'cleanup SIGINT' SIGINT
 trap 'cleanup SIGTERM' SIGTERM
 
+##### ADDED DISK SPACE CHECK START #####
+# ensure_disk_space:
+# - Checks free space on the filesystem containing $BASE_DIR.
+# - If <450GB free:
+#     * tries to delete any folders in $BASE_DIR/outputfolder older than 15 days
+#     * checks again
+#     * exits with reason if still too low or nothing deletable.
+ensure_disk_space() {
+    local base_path="$BASE_DIR"
+    local output_parent="${BASE_DIR}/outputfolder"
+    local threshold_gb=450
+
+    # Helper: get current free GB on the filesystem hosting base_path
+    local free_gb
+    free_gb=$(df -BG "$base_path" | awk 'NR==2 {sub(/G/,"",$4); print $4}')
+
+    # If we already have enough free space, we're done
+    if [ "$free_gb" -ge "$threshold_gb" ]; then
+        echo "Sufficient disk space available: ${free_gb}GB free."
+        return 0
+    fi
+
+    echo "Free space is ${free_gb}GB, below required ${threshold_gb}GB. Attempting cleanup of old runs in ${output_parent} ..."
+
+    # Find folders older than 15 days in outputfolder (top-level only)
+    local old_dirs
+    old_dirs=$(find "$output_parent" -mindepth 1 -maxdepth 1 -type d -mtime +15 2>/dev/null)
+
+    if [ -z "$old_dirs" ]; then
+        echo "Not enough disk space (${free_gb}GB free) and no directories older than 15 days found in ${output_parent}."
+        echo "Exiting to avoid running out of space."
+        exit 1
+    fi
+
+    # Delete them
+    echo "Removing the following old directories:"
+    echo "$old_dirs"
+    find "$output_parent" -mindepth 1 -maxdepth 1 -type d -mtime +15 -print -exec rm -rf {} \;
+
+    sync
+
+    # Re-check free space
+    free_gb=$(df -BG "$base_path" | awk 'NR==2 {sub(/G/,"",$4); print $4}')
+    if [ "$free_gb" -lt "$threshold_gb" ]; then
+        echo "Cleanup performed, but free space is still below ${threshold_gb}GB (currently ${free_gb}GB)."
+        echo "Exiting to avoid running without enough disk space."
+        exit 1
+    fi
+
+    echo "Disk cleanup successful. ${free_gb}GB free."
+    return 0
+}
+##### ADDED DISK SPACE CHECK END #####
+
 run_qc_pipeline() {
     local fastq_1=$1
     local fastq_2=$2
@@ -120,6 +174,12 @@ run_qc_pipeline() {
     
     echo "${qc_dir}/cleaned_R1.fastq.gz ${qc_dir}/cleaned_R2.fastq.gz"
 }
+
+##### ADDED DISK SPACE CHECK START #####
+# Before doing ANY work (creating patient dirs, running analysis),
+# make sure we actually have enough free space.
+ensure_disk_space
+##### ADDED DISK SPACE CHECK END #####
 
 # Get patient name
 read -p "Enter patient name: " PATIENT_NAME
@@ -583,4 +643,3 @@ rm -f "$OUTPUT_DIR/filtered_samples.rds"
     echo "$VERSION_INFO" >> "$PATIENT_BASE_DIR/version_history.txt"
 
 fi
-
